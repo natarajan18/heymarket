@@ -1,0 +1,18 @@
+@isTest
+public class OpportunityTriggerHandlerTest {
+    @isTest
+    public static void oppStageTest(){
+        try{
+            List<Opportunity> oppTests=TestDatFactoryClass.opportunityRecords();
+            oppTests[0].amount= 9000;
+            oppTests[0].target_amount__c=10000;
+            oppTests[1].amount=null;
+            update oppTests;
+        }
+        catch(Exception ex)
+        {
+            Boolean expectedExceptionThrown =  ex.getMessage().contains('Script-thrown exception') ? true : false;
+            System.assertEquals(expectedExceptionThrown, false);
+        }
+    }
+}
