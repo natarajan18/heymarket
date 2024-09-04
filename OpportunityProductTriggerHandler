@@ -1,0 +1,39 @@
+/*
+--------------------------
+Apex Class Name    : OpportunityProductTriggerHandler
+Created Date       : Aug 31 ,2024
+@description       : method calculateTotalRevenue - This method run when a product is added to the opportunity or any added products 
+					 updated to calculate the over all sum of the products to its related Opportunity and update on Opportunity's Amount field.
+@author            : Natarajan N
+--------------------------
+*/
+
+public class OpportunityProductTriggerHandler {
+    public static void calculateTotalRevenue(Map<Id,OpportunityLineItem> newOPMap){
+        try{
+            Map<id, decimal> oppAmountMap= new Map<id, decimal>();
+            Map<id, Opportunity> oppMapToUpdate= new Map<id,Opportunity>();
+            decimal tempPrice=0;
+            for(OpportunityLineItem op:newOPMap.values() ){
+                if(oppAmountMap.containsKey(op.opportunityid)){
+                    tempPrice=oppAmountMap.get(op.opportunityid)+op.totalprice;  
+                    oppAmountMap.put(op.opportunityid,tempPrice );
+                }
+                else{
+                    tempPrice=op.totalprice;  
+                    oppAmountMap.put(op.opportunityid,tempPrice);
+                }
+                Opportunity opp= new Opportunity();
+                opp.Id= op.OpportunityId;
+                opp.amount=oppAmountMap.get(op.opportunityid);
+                System.debug('999'+opp.amount);
+                oppMapToUpdate.put(opp.Id, opp);
+                
+            }
+            update oppMapToUpdate.values();
+        }
+        catch(Exception e){
+            System.debug('The following exception has occurred: ' + e.getMessage() + ' at line ' +e.getLineNumber());
+        }
+    }
+}
