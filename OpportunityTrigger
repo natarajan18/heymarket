@@ -1,0 +1,5 @@
+trigger OpportunityTrigger on Opportunity (before insert, before update) {
+    if(trigger.isBefore){
+        OpportunityTriggerHandler.updateStage(trigger.newMap,trigger.oldMap);
+    }
+}
