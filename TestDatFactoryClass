@@ -1,0 +1,55 @@
+public class TestDatFactoryClass {
+    public static List<lead> LeadRecords(){
+        List<Lead> leadList= new List<Lead>();
+        for(integer i=0;i<10;i++){
+            Lead l= new Lead( lastName='test '+i, company='HeyMarket',email='nattu'+string.valueOf(i)+'@gmail.com' , phone='8903317996', status='Open');
+            leadList.add(l);
+        }
+        insert leadList;
+        return leadList;
+    }
+    
+    public static List<Opportunity> opportunityRecords(){
+        List<Opportunity> oppList= new List<Opportunity>();
+        for(integer i=0;i<10;i++){
+            Opportunity opp= new Opportunity( Name='testOpp '+i, StageName='Open', Amount=100,closeDate= date.today()+10);
+            oppList.add(opp);
+        }
+        insert oppList;
+        return oppList;
+    }
+    public static List<OpportunityLineItem> oppProdRecords(){
+        List<OpportunityLineItem> oppProdList= new List<OpportunityLineItem>();
+        List<Opportunity> oppList= opportunityRecords();
+        
+        Product2 p = new Product2();
+        p.Name = ' Test Product ';
+        p.Description='Test Product Entry For Product';
+        p.productCode = 'SFDCPanther-123';
+        p.isActive = true;
+        insert p;
+        
+        // insert pricebook entry for the product
+        PricebookEntry standardPrice = new PricebookEntry();
+        standardPrice.Pricebook2Id = Test.getStandardPricebookId();
+        standardPrice.Product2Id = p.Id;
+        standardPrice.UnitPrice = 100;
+        standardPrice.IsActive = true;
+        standardPrice.UseStandardPrice = false;
+        insert standardPrice ;
+        
+        oppList[0].Pricebook2Id = Test.getStandardPricebookId();
+        update oppList[0];
+        
+        for(integer i=0;i<10;i++){
+            OpportunityLineItem oppLineItem = new OpportunityLineItem();
+            oppLineItem.OpportunityId = oppList[0].Id;
+            oppLineItem.PricebookEntryId = standardPrice.Id;
+            oppLineItem.UnitPrice = 7000;
+            oppLineItem.Quantity = 5;
+            oppProdList.add(oppLineItem);
+        }
+        insert oppProdList;
+        return oppProdList;
+    }
+}
