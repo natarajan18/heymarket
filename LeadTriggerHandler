@@ -1,0 +1,72 @@
+/*
+--------------------------
+Apex Class Name    : LeadTriggerHandler
+Created Date       : Aug 31,2024
+@description       : This class contains two methods, 
+1. leadRoutingClass- This controlls the lead routing based on the user's availability. It will count the 
+number of users using the label Number_of_Sales_Reps and get the user details from the group "Lead_Assignment_Group" 
+and based on the auto number on "Lead_Auto_Number__c" leads it will assign the owners. 
+2. checkValidtityOnConvert-- This method runs when the lead is getting converted and check for a valid email and phone numbers 
+based on the standard email and phone format. If the formats are not right or it empty it will through the errors.
+@author            : Natarajan N
+--------------------------
+*/
+public class LeadTriggerHandler {
+    public static void leadRouting(Map<id,lead> leadMap){
+        try{
+            Integer offsetValue= Integer.valueOf(System.label.Number_of_Sales_Reps);
+            Map<Integer,ID> groupMemberMap=New Map<Integer,ID>(); 
+            Integer count=0;
+            for(groupmember gm:[select userorgroupid from groupmember where group.DeveloperName ='Lead_Assignment_Group'] ){
+                groupMemberMap.put(count,gm.UserOrGroupId);
+                count++;
+            }
+            
+            List<lead> leadToUpdate=new List<lead>();
+            for(Lead ld: [Select id,Lead_Auto_Number__c from lead where id IN:leadMap.keySet()]){
+                ld.ownerid=groupMemberMap.get(math.mod(Integer.valueOf(ld.Lead_Auto_Number__c),offsetValue));
+                leadToUpdate.add(ld);
+            }
+            Database.SaveResult[] saveList=  Database.update(leadToUpdate,false);
+            for(Database.SaveResult s: saveList){
+                if(s.isSuccess()){
+                }
+                else{
+                    
+                }
+            }
+        }
+        catch(Exception e){
+            System.debug('The following exception has occurred: ' + e.getMessage() + ' at line ' +e.getLineNumber());
+        }
+    }
+    Public static void checkValidtityOnConvert(List<Lead> leadList, Map<ID, Lead> oldLeadMap){
+        try{
+            
+            String emailRegex = '^[a-zA-Z0-9._|\\\\}{+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$'; 
+            Pattern MyPattern = Pattern.compile(emailRegex);
+            For(Lead ld: leadList){
+                Matcher MyMatcher = MyPattern.matcher(ld.Email);
+                if(ld.IsConverted!=oldLeadMap.get(ld.id).isConverted){// Lead Conversion Criteria
+                    if(ld.email!=null && ld.Phone!=null){
+                        if (!MyMatcher.matches()) {
+                            ld.email.addError('Please enter a valid email');
+                        }
+                        if(!Pattern.matches('[0-9(),./\\-]', ld.Phone))// not added + for testing if you add + in phone number it will save and when it is getting converted you will get error.
+                        {
+                            ld.phone.addError('Please enter a valid Phone Number');
+                        }
+                    }
+                    else{
+                        ld.addError('Please enter a valid Phone Number and Email to Convert the lead');
+                    }
+                }
+                
+            }
+            
+        } catch(Exception e){
+            System.debug('The following exception has occurred: ' + e.getMessage() + ' at line ' +e.getLineNumber());
+        }
+        
+    } 
+}
