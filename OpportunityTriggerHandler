@@ -1,0 +1,26 @@
+/*
+--------------------------
+Apex Class Name    : OpportunityTriggerHandler
+Created Date       : Sep 1 ,2024
+@description       : method updateStage - This method will update the Stage to Closing stage by the label "Closing" when the Opportunity's Amount crosses the 
+					 threshold of 90% of its Tagerted amount(custom field in Opportunity).
+@author            : Natarajan N
+--------------------------
+*/
+
+public class OpportunityTriggerHandler {
+    public static void updateStage(Map<ID,Opportunity> oppMap,Map<ID,Opportunity> oppOldMap){
+        try{
+            For(Opportunity opp:oppMap.values()){
+                if(oppOldMap.get(opp.Id).amount!=opp.Amount && 
+                   opp.Amount>=0.9*opp.Target_Amount__c &&
+                   opp.CloseDate.daysBetween(date.today())<=30){
+                       opp.StageName=System.label.closing;
+                   }
+            }
+        }
+        catch(Exception e){
+            System.debug('The following exception has occurred: ' + e.getMessage() + ' at line ' +e.getLineNumber());
+         }
+    }
+}
