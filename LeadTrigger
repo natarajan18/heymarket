@@ -1,0 +1,9 @@
+trigger LeadTrigger on Lead (after insert,before Update) {
+    if(trigger.isAfter && trigger.isInsert){
+        LeadTriggerHandler.leadRouting(trigger.newMap);
+    }
+    if(trigger.isBefore && trigger.isUpdate){
+        LeadTriggerHandler.checkValidtityOnConvert(trigger.new,trigger.oldMap);
+    }
+    
+}
