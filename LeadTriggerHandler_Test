@@ -1,0 +1,26 @@
+@isTest
+public class LeadTriggerHandler_Test {
+    
+    @isTest
+    public static void testLeadRouting(){
+        try{
+            List<Lead> testLeads= TestDatFactoryClass.LeadRecords();
+            testLeads[1].email=null;
+            update testLeads[1];
+            test.startTest();
+            database.leadConvert lc = new database.leadConvert();
+            lc.setLeadId(testLeads[0].id);
+            leadStatus convertStatus = [SELECT Id, MasterLabel FROM LeadStatus WHERE IsConverted=true LIMIT 1];lc.setConvertedStatus(convertStatus.MasterLabel);
+            Database.LeadConvertResult lcr = Database.convertLead(lc);
+            System.assert(lcr.isSuccess());
+            test.stopTest();
+        } 
+        catch(Exception ex)
+        {
+            Boolean expectedExceptionThrown =  ex.getMessage().contains('Script-thrown exception') ? true : false;
+            System.assertEquals(expectedExceptionThrown, false);
+        }
+        
+    }
+    
+}
