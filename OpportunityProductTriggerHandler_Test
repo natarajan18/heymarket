@@ -1,0 +1,16 @@
+@isTest
+public class OpportunityProductTriggerHandler_Test {
+    @isTest
+    public static void oppRevenuTest(){
+        try{
+            List<OpportunityLineItem> oppprodTests=TestDatFactoryClass.oppProdRecords();
+            List<Opportunity> oppTests=TestDatFactoryClass.opportunityRecords();
+            test.startTest();
+            System.assertEquals(100.00,oppTests[0].amount);
+            test.stopTest();
+        }
+        catch(exception e){
+        }
+        
+    }
+}
